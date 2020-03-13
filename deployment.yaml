@@ -7,7 +7,6 @@ metadata:
     app: ncov-stats
 spec:
   schedule: "30 */3 * * *"
-  replicas: 1
   jobTemplate:
     spec:
       template:
