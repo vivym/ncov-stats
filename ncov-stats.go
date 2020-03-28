@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
@@ -34,7 +35,8 @@ func fetchData() error {
 		SetRetryCount(3).
 		SetRetryWaitTime(5 * time.Second).
 		SetRetryMaxWaitTime(20 * time.Second).
-		SetHostURL("http://lab.isaaclin.cn/nCoV/api")
+		SetHostURL("https://lab.isaaclin.cn/nCoV/api").
+		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
 	rsp, err := http.R().
 		SetResult(&Result{}).
