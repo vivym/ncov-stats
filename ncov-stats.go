@@ -2,9 +2,12 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/spf13/pflag"
@@ -95,6 +98,40 @@ func fetchData() error {
 	return nil
 }
 
+func fetchOverall() error {
+	http := resty.New().
+		SetRetryCount(3).
+		SetRetryWaitTime(5 * time.Second).
+		SetRetryMaxWaitTime(20 * time.Second).
+		SetHostURL("https://ncov.dxy.cn/").
+		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+
+	rsp, err := http.R().
+		Get("/ncovh5/view/pneumonia?from=singlemessage&isappinstalled=0")
+	if err != nil {
+		return err
+	}
+
+	re := regexp.MustCompile(`window.getStatisticsService *= *({[\s\S]*?}) *} *catch`)
+	m := re.FindSubmatch(rsp.Body())
+	if len(m) < 2 {
+		return errors.New("could not find window.getStatisticsService")
+	}
+
+	info := NCovOverallInfo{}
+	if err := json.Unmarshal(m[1], &info); err != nil {
+		return err
+	}
+	info.Time = int32(info.ModifyTime / 1000)
+
+	if err := mgm.Coll(&info).Create(&info); err != nil {
+		return err
+	}
+	fmt.Println("overall info done.")
+
+	return nil
+}
+
 func main() {
 	v, p := viper.New(), pflag.NewFlagSet(friendlyAppName, pflag.ExitOnError)
 
@@ -138,7 +175,12 @@ func main() {
 	}
 
 	if err := fetchData(); err != nil {
-		time.Sleep(time.Second * 30)
+		time.Sleep(time.Second * 3)
 		log.Fatalf("fetchData error: %v\n", err)
+	}
+
+	if err := fetchOverall(); err != nil {
+		time.Sleep(time.Second * 3)
+		log.Fatalf("fetchOverall error: %v\n", err)
 	}
 }

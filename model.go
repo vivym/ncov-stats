@@ -49,6 +49,38 @@ type CityInfo struct {
 	RemainingConfirmed int    `json:"remainingConfirmed" bson:"remainingConfirmed"`
 }
 
+type NCovOverallInfo struct {
+	mgm.DefaultModel       `bson:",inline"`
+	ModifyTime             int64 `json:"modifyTime" bson:"-"`
+	Time                   int32 `bson:"time"`
+	Dead                   int   `json:"deadCount" bson:"dead"`
+	DeadIncr               int   `json:"deadIncr" bson:"deadIncr"`
+	Confirmed              int   `json:"confirmedCount" bson:"confirmed"`
+	ConfirmedIncr          int   `json:"confirmedIncr" bson:"confirmedIncr"`
+	Suspected              int   `json:"suspectedCount" bson:"suspected"`
+	SuspectedIncr          int   `json:"suspectedIncr" bson:"suspectedIncr"`
+	Cured                  int   `json:"curedCount" bson:"cured"`
+	CuredIncr              int   `json:"curedIncr" bson:"curedIncr"`
+	RemainingConfirmed     int   `json:"currentConfirmedCount" bson:"remainingConfirmed"`
+	RemainingConfirmedIncr int   `json:"currentConfirmedIncr" bson:"remainingConfirmedIncr"`
+	Serious                int   `json:"seriousCount" bson:"serious"`
+	SeriousIncr            int   `json:"seriousIncr" bson:"seriousIncr"`
+	GlobalStatistics       struct {
+		Dead                   int `json:"deadCount" bson:"dead"`
+		DeadIncr               int `json:"deadIncr" bson:"deadIncr"`
+		Confirmed              int `json:"confirmedCount" bson:"confirmed"`
+		ConfirmedIncr          int `json:"confirmedIncr" bson:"confirmedIncr"`
+		Cured                  int `json:"curedCount" bson:"cured"`
+		CuredIncr              int `json:"curedIncr" bson:"curedIncr"`
+		RemainingConfirmed     int `json:"currentConfirmedCount" bson:"remainingConfirmed"`
+		RemainingConfirmedIncr int `json:"currentConfirmedIncr" bson:"remainingConfirmedIncr"`
+	} `json:"globalStatistics" bson:"global"`
+}
+
 func (n *NCovInfo) CollectionName() string {
 	return "ncovinfos"
+}
+
+func (n *NCovOverallInfo) CollectionName() string {
+	return "ncov_overall_infos"
 }
